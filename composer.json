@@ -1,0 +1,14 @@
+{
+  "name": "waglpz/docker",
+  "description": "Some Dockerfiles",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alexander Hutorezki",
+      "email": "alexander.hutorezki@gmail.com"
+    }
+  ],
+  "require": {
+  }
+}
