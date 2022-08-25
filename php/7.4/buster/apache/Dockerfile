@@ -236,6 +236,9 @@ RUN docker-php-ext-install pdo_mysql
 #RUN docker-php-ext-install sockets
 RUN docker-php-ext-install zip
 RUN pecl install apcu ; docker-php-ext-enable apcu
+
+#ENV GRPC_ENABLE_FORK_SUPPORT=1
+#ENV GRPC_POLL_STRATEGY=epoll1
 #RUN pecl install grpc ; docker-php-ext-enable grpc
 
 # when needed xdebug can enabled in file php/php-ini-overrides.ini
