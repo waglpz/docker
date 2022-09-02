@@ -105,21 +105,59 @@ docker-php-ext-enable                     \
 #<editor-fold desc="LDAP with PHP extensions">
 ########################################################################################################################
 
-#RUN apt-get update;                 \
-#    apt-get install                 \
-#            -y                      \
-#            --no-install-recommends \
-#        libldap2-dev                \
-#    ;                               \
-#    rm -rf /var/lib/apt/lists/*;    \
-#    rm -rf /var/cache/apt;          \
-#    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
-#
-#### LDAP PHP extensions
-#RUN docker-php-ext-configure ldap       \
-#    --with-libdir=lib/x86_64-linux-gnu/ \
-#    ;                                   \
-#   docker-php-ext-install ldap
+RUN apt-get update;                 \
+    apt-get install                 \
+            -y                      \
+            --no-install-recommends \
+        libldap2-dev                \
+    ;                               \
+    rm -rf /var/lib/apt/lists/*;    \
+    rm -rf /var/cache/apt;          \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false ; \
+    docker-php-ext-configure ldap   \
+        --with-libdir=lib/x86_64-linux-gnu/ \
+    ;                               \
+   docker-php-ext-install ldap
+
+#</editor-fold>
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+#<editor-fold desc="SMB Client with PHP-Extensions">
+########################################################################################################################
+
+RUN apt-get update;                 \
+    apt-get install                 \
+            -y                      \
+            --no-install-recommends \
+      smbclient                     \
+      libsmbclient-dev              \
+    ;                               \
+    rm -rf /var/lib/apt/lists/*;    \
+    rm -rf /var/cache/apt;          \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false ;  \
+    pecl install smbclient ;        \
+    docker-php-ext-enable smbclient
+
+#</editor-fold>
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+#<editor-fold desc="IMAP">
+########################################################################################################################
+
+RUN apt-get update;                 \
+    apt-get install                 \
+            -y                      \
+            --no-install-recommends \
+      libc-client-dev               \
+      libkrb5-dev                   \
+    ;                               \
+    rm -rf /var/lib/apt/lists/*;    \
+    rm -rf /var/cache/apt;          \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false ; \
+    docker-php-ext-configure imap --with-kerberos --with-imap-ssl ; \
+    docker-php-ext-install imap
 
 #</editor-fold>
 #-----------------------------------------------------------------------------------------------------------------------
@@ -128,33 +166,33 @@ docker-php-ext-enable                     \
 #<editor-fold desc="Images manipulation with PHP">
 ########################################################################################################################
 
-#RUN apt-get update;                 \
-#    apt-get install                 \
-#            -y                      \
-#            --no-install-recommends \
-#      libfreetype6-dev              \
-#      libgd-dev                     \
-#      libjpeg62-turbo-dev           \
-#      libpng-dev                    \
-#      libwebp-dev                   \
-#      libxpm-dev                    \
-#      libxpm-dev                    \
-#    ;                               \
-#    rm -rf /var/lib/apt/lists/*;    \
-#    rm -rf /var/cache/apt;          \
-#    apt-get purge                   \
-#      -y                            \
-#      --auto-remove                 \
-#      -o APT::AutoRemove::RecommendsImportant=false \
-#;                                   \
-#docker-php-ext-install              \
-#    -j$(nproc) gd                   \
-#;                                   \
-#docker-php-ext-configure gd         \
-#                --with-external-gd  \
-#                --with-freetype     \
-#                --with-webp         \
-#                --with-xpm
+RUN apt-get update;                 \
+    apt-get install                 \
+            -y                      \
+            --no-install-recommends \
+      libfreetype6-dev              \
+      libgd-dev                     \
+      libjpeg62-turbo-dev           \
+      libpng-dev                    \
+      libwebp-dev                   \
+      libxpm-dev                    \
+      libxpm-dev                    \
+    ;                               \
+    rm -rf /var/lib/apt/lists/*;    \
+    rm -rf /var/cache/apt;          \
+    apt-get purge                   \
+      -y                            \
+      --auto-remove                 \
+      -o APT::AutoRemove::RecommendsImportant=false \
+;                                   \
+docker-php-ext-install              \
+    -j$(nproc) gd                   \
+;                                   \
+docker-php-ext-configure gd         \
+                --with-external-gd  \
+                --with-freetype     \
+                --with-webp         \
+                --with-xpm
 
 #</editor-fold>
 #-----------------------------------------------------------------------------------------------------------------------
@@ -172,11 +210,16 @@ RUN apt-get update;                 \
         default-jdk                 \
         enscript                    \
         ghostscript                 \
+        imagemagick                 \
         pdftk-java                  \
+        tesseract-ocr               \
+        tesseract-ocr-deu           \
     ;                               \
     rm -rf /var/lib/apt/lists/*;    \
     rm -rf /var/cache/apt;          \
-    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false ; \
+    sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/g' \
+    /etc/ImageMagick-6/policy.xml
 
 #</editor-fold>
 #-----------------------------------------------------------------------------------------------------------------------
@@ -233,13 +276,13 @@ RUN docker-php-ext-install mbstring
 RUN docker-php-ext-install mysqli
 RUN docker-php-ext-install pcntl
 RUN docker-php-ext-install pdo_mysql
-#RUN docker-php-ext-install sockets
+RUN docker-php-ext-install sockets
 RUN docker-php-ext-install zip
 RUN pecl install apcu ; docker-php-ext-enable apcu
 
-#ENV GRPC_ENABLE_FORK_SUPPORT=1
-#ENV GRPC_POLL_STRATEGY=epoll1
-#RUN pecl install grpc ; docker-php-ext-enable grpc
+ENV GRPC_ENABLE_FORK_SUPPORT=1
+ENV GRPC_POLL_STRATEGY=epoll1
+RUN pecl install grpc ; docker-php-ext-enable grpc
 
 # when needed xdebug can enabled in file php/php-ini-overrides.ini
 RUN pecl install xdebug-2.9.0
