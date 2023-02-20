@@ -5,6 +5,7 @@ Dockerfile -- a text file that contains all commands, in order, needed to build 
 
 - [PHP 5.6.30 on Debian 10 without webserver](php/5.6.30/Dockerfile)
 - [PHP 7.4 on Debian 10 with Apache webserver](php/7.4/buster/apache/Dockerfile)
+- [PHP 8.2 on Debian 11 with Apache webserver](php/8.2/bullseye/apache/Dockerfile)
 
 
 Docker Engine should already be installed on you maschine. See installation instruction on: 
@@ -78,5 +79,9 @@ Shutdown all containers
 ```bash
 docker ps -aq | xargs docker stop | xargs docker rm
 ```
+
+
+Example Build and Tagging:
+`docker build --build-arg APPUID=1000 --build-arg APPUGID=1000 -t waglpz/vwd-base:8.2 php/8.2/bullseye/apache/` 
 
 ...
